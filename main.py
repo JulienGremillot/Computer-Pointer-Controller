@@ -44,8 +44,6 @@ class Computer_Pointer_Controller:
         # init mouse controller
         self.mouse_controller = MouseController('low', 'fast')
 
-        self.out_video = cv2.VideoWriter('output_video.mp4', cv2.VideoWriter_fourcc(*'avc1'), 29.97, (1920, 1080), True)
-
     def run(self):
         '''
         This method process each frame.
