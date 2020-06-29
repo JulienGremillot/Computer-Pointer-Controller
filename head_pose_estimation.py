@@ -5,7 +5,6 @@ import cv2
 import numpy as np
 from openvino.inference_engine.ie_api import IENetwork, IECore
 
-
 class Head_Pose_Estimation:
     '''
     Class for the Head Pose Estimation Model.
@@ -36,15 +35,12 @@ class Head_Pose_Estimation:
 
     def predict(self, image):
         '''
-        This method is meant for running predictions on the input image.
+        This method is meant for running predictions on the input image of a face.
+        Return a numpy array of the detected three head pose angles (yaw, pitch, and roll)
         '''
         preprocessed_image = self.preprocess_input(image)
-        output = self.net.infer({self.input_name: preprocessed_image})
-        # Output contains :
-        # name: "angle_y_fc", shape: [1, 1] - Estimated yaw (in degrees).
-        # name: "angle_p_fc", shape: [1, 1] - Estimated pitch (in degrees).
-        # name: "angle_r_fc", shape: [1, 1] - Estimated roll (in degrees).
-        return np.array([[output["angle_y_fc"][0][0],  output["angle_p_fc"][0][0], output["angle_r_fc"][0][0]]])
+        outputs = self.net.infer({self.input_name: preprocessed_image})
+        return self.preprocess_output(outputs)
 
     def check_model(self):
         raise NotImplementedError
@@ -63,7 +59,13 @@ class Head_Pose_Estimation:
 
     def preprocess_output(self, outputs):
         '''
-        Before feeding the output of this model to the next model,
-        you might have to preprocess the output. This function is where you can do that.
+        Return a numpy array of the detected three head pose angles (yaw, pitch, and roll)
+
+        Outputs contains :
+        # name: "angle_y_fc", shape: [1, 1] - Estimated yaw (in degrees).
+        # name: "angle_p_fc", shape: [1, 1] - Estimated pitch (in degrees).
+        # name: "angle_r_fc", shape: [1, 1] - Estimated roll (in degrees).
+
+        More information at https://docs.openvinotoolkit.org/latest/_models_intel_head_pose_estimation_adas_0001_description_head_pose_estimation_adas_0001.html
         '''
-        raise NotImplementedError
+        return np.array([[outputs["angle_y_fc"][0][0],  outputs["angle_p_fc"][0][0], outputs["angle_r_fc"][0][0]]])

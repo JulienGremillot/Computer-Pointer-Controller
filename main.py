@@ -42,7 +42,7 @@ class Computer_Pointer_Controller:
         self.feed.load_data()
 
         # init mouse controller
-        self.mouse_controller = MouseController('medium', 'medium')
+        self.mouse_controller = MouseController('high', 'fast')
 
         self.out_video = cv2.VideoWriter('output_video.mp4', cv2.VideoWriter_fourcc(*'avc1'), 29.97, (1920, 1080), True)
 
@@ -54,19 +54,21 @@ class Computer_Pointer_Controller:
         for batch in self.feed.next_batch():
             if batch is None:
                 break
+
+            face = self.face_detection.predict(batch)
+            i = i + 1
+            if face is None:
+                continue
             else:
-                face = self.face_detection.predict(batch)
-                i = i + 1
-                if face is None:
-                    continue
-                else:
-                    left_eye_image, right_eye_image = self.facial_landmarks_detection.predict(face)
-                    head_pose_angles = self.head_pose_estimation.predict(face)
-                    vector = self.gaze_estimation.predict(left_eye_image, right_eye_image, head_pose_angles)
-                    self.mouse_controller.move(vector[0], vector[1])
-                    #self.out_video.write(cv2.resize(face, (1920, 1080)))
+                left_eye_image, right_eye_image = self.facial_landmarks_detection.predict(face)
+                head_pose_angles = self.head_pose_estimation.predict(face)
+                vector = self.gaze_estimation.predict(left_eye_image, right_eye_image, head_pose_angles)
+                cv2.imshow("Detected face", face)
+                cv2.waitKey(1)
+                self.mouse_controller.move(vector[0], vector[1])
 
         self.feed.close()
+        cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

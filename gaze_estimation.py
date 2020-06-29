@@ -34,7 +34,11 @@ class Gaze_Estimation:
 
     def predict(self, left_eye_image, right_eye_image, head_pose_angles):
         '''
-        This method is meant for running predictions on the input image.
+        This method is meant for running predictions with the provided inputs :
+        square crop of left eye image, square crop of right eye image, and three head pose angles – (yaw, pitch, and roll)
+
+        Names of the inputs & output are those provided in the model's documentation :
+        https://docs.openvinotoolkit.org/latest/_models_intel_gaze_estimation_adas_0002_description_gaze_estimation_adas_0002.html
         '''
         output = self.net.infer({
                         'left_eye_image': self.preprocess_input(left_eye_image),
