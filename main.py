@@ -42,7 +42,7 @@ class Computer_Pointer_Controller:
         self.feed.load_data()
 
         # init mouse controller
-        self.mouse_controller = MouseController('high', 'fast')
+        self.mouse_controller = MouseController('low', 'fast')
 
         self.out_video = cv2.VideoWriter('output_video.mp4', cv2.VideoWriter_fourcc(*'avc1'), 29.97, (1920, 1080), True)
 
@@ -54,6 +54,9 @@ class Computer_Pointer_Controller:
         for batch in self.feed.next_batch():
             if batch is None:
                 break
+
+            # as we want the webcam to act as a mirror, flip the frame
+            batch = cv2.flip(batch, 1)
 
             face = self.face_detection.predict(batch)
             i = i + 1

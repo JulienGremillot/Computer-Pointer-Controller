@@ -32,11 +32,18 @@ But you are of course free to use any compatible model, and specify these with t
 This will download the models in all precisions available. You can add a ```--precisions``` argument if you only want a specific precision.
 These example are for the default installation of OpenVino 2020.2.117
 ```
-python "C:\Program Files (x86)\IntelSWTools\openvino_2020.2.117\deployment_tools\tools\model_downloader\downloader.py" --name face-detection-adas-binary-0001
-python "C:\Program Files (x86)\IntelSWTools\openvino_2020.2.117\deployment_tools\tools\model_downloader\downloader.py" --name head-pose-estimation-adas-0001
-python "C:\Program Files (x86)\IntelSWTools\openvino_2020.2.117\deployment_tools\tools\model_downloader\downloader.py" --name landmarks-regression-retail-0009
-python "C:\Program Files (x86)\IntelSWTools\openvino_2020.2.117\deployment_tools\tools\model_downloader\downloader.py" --name gaze-estimation-adas-0002
+python "C:\Program Files (x86)\IntelSWTools\openvino\deployment_tools\tools\model_downloader\downloader.py" --name face-detection-adas-binary-0001
+python "C:\Program Files (x86)\IntelSWTools\openvino\deployment_tools\tools\model_downloader\downloader.py" --name head-pose-estimation-adas-0001
+python "C:\Program Files (x86)\IntelSWTools\openvino\deployment_tools\tools\model_downloader\downloader.py" --name landmarks-regression-retail-0009
+python "C:\Program Files (x86)\IntelSWTools\openvino\deployment_tools\tools\model_downloader\downloader.py" --name gaze-estimation-adas-0002
 ``` 
+
+The total files size is about 41MB.
+
+## Usage
+
+Here is an example of the script in action with a webcam (default) :
+[resources/example.mp4](resources/example.mp4)
 
 ## Licence
 
