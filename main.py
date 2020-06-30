@@ -49,6 +49,7 @@ class Computer_Pointer_Controller:
         This method process each frame.
         '''
         inferences_times = []
+        face_detections_times = []
         for batch in self.feed.next_batch():
             if batch is None:
                 break
@@ -61,6 +62,8 @@ class Computer_Pointer_Controller:
             if face is None:
                 continue
             else:
+                face_detections_times.append(time.time() - inference_time)
+
                 left_eye_image, right_eye_image = self.facial_landmarks_detection.predict(face)
                 if left_eye_image is None or right_eye_image is None:
                     continue
@@ -76,6 +79,7 @@ class Computer_Pointer_Controller:
 
         self.feed.close()
         cv2.destroyAllWindows()
+        print("Average face detection inference time:", sum(face_detections_times) / len(face_detections_times))
         print("Average total inferences time:", sum(inferences_times) / len(inferences_times))
 
 if __name__ == '__main__':
