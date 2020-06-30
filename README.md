@@ -14,6 +14,7 @@ It runs multiple models in the same machine and coordinate the flow of data betw
 You need OpenCV and Intel's OpenVino toolkit installed on your machine.
 
 * [OpenCV](https://opencv.org) - The simple install should look like `pip install opencv-python`.
+* [PyAutoGUI](https://pypi.org/project/PyAutoGUI/) - The simple install should look like `pip install pyautogui`.
 * [OpenVino toolKit](https://software.intel.com/en-us/openvino-toolkit) - See website for installation depending of your configuration.
 
 ### Models download
