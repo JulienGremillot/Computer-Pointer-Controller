@@ -14,6 +14,7 @@ class MouseController:
         precision_dict={'high':100, 'low':1000, 'medium':500}
         speed_dict={'fast':1, 'slow':10, 'medium':5}
 
+        pyautogui.FAILSAFE = False
         self.precision=precision_dict[precision]
         self.speed=speed_dict[speed]
 

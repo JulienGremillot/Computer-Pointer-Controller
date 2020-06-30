@@ -22,13 +22,13 @@ FACIAL_LANDMARKS_DETECTION_MODEL = "models/intel/landmarks-regression-retail-000
 
 class Computer_Pointer_Controller:
 
-    def __init__(self, model_name, device='CPU', extensions=None):
+    def __init__(self, args):
 
         # load the objects corresponding to the models
-        self.face_detection = Face_Detection(args.face_detection_model, args.device, args.extensions)
-        self.gaze_estimation = Gaze_Estimation(args.gaze_estimation_model, args.device, args.extensions)
-        self.head_pose_estimation = Head_Pose_Estimation(args.head_pose_estimation_model, args.device, args.extensions)
-        self.facial_landmarks_detection = Facial_Landmarks_Detection(args.facial_landmarks_detection_model, args.device, args.extensions)
+        self.face_detection = Face_Detection(args.face_detection_model, args.device, args.extensions, args.perf_counts)
+        self.gaze_estimation = Gaze_Estimation(args.gaze_estimation_model, args.device, args.extensions, args.perf_counts)
+        self.head_pose_estimation = Head_Pose_Estimation(args.head_pose_estimation_model, args.device, args.extensions, args.perf_counts)
+        self.facial_landmarks_detection = Facial_Landmarks_Detection(args.facial_landmarks_detection_model, args.device, args.extensions, args.perf_counts)
 
         start_models_load_time = time.time()
         self.face_detection.load_model()
@@ -48,7 +48,7 @@ class Computer_Pointer_Controller:
         '''
         This method process each frame.
         '''
-        i = 0
+        inferences_times = []
         for batch in self.feed.next_batch():
             if batch is None:
                 break
@@ -56,20 +56,27 @@ class Computer_Pointer_Controller:
             # as we want the webcam to act as a mirror, flip the frame
             batch = cv2.flip(batch, 1)
 
+            inference_time = time.time()
             face = self.face_detection.predict(batch)
-            i = i + 1
             if face is None:
                 continue
             else:
                 left_eye_image, right_eye_image = self.facial_landmarks_detection.predict(face)
+                if left_eye_image is None or right_eye_image is None:
+                    continue
                 head_pose_angles = self.head_pose_estimation.predict(face)
+                if head_pose_angles is None:
+                    continue
                 vector = self.gaze_estimation.predict(left_eye_image, right_eye_image, head_pose_angles)
-                cv2.imshow("Detected face", face)
-                cv2.waitKey(1)
+                inferences_times.append(time.time() - inference_time)
+                if args.show_face == "True":
+                    cv2.imshow("Detected face", face)
+                    cv2.waitKey(1)
                 self.mouse_controller.move(vector[0], vector[1])
 
         self.feed.close()
         cv2.destroyAllWindows()
+        print("Average total inferences time:", sum(inferences_times) / len(inferences_times))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -81,6 +88,8 @@ if __name__ == '__main__':
     parser.add_argument('--extensions', default=None)
     parser.add_argument('--input_type', default='cam')
     parser.add_argument('--input_file', default=None)
+    parser.add_argument('--show_face', default='True')
+    parser.add_argument('--perf_counts', default='False')
 
     args = parser.parse_args()
 

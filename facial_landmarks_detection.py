@@ -3,6 +3,7 @@ This is the class for the Facial Landmarks Detection Model.
 '''
 import cv2
 from openvino.inference_engine.ie_api import IENetwork, IECore
+import pprint
 
 # To crop the eyes from the face, we use a square sized with 1/5 the width of the face.
 EYE_FACE_COEF = 0.2
@@ -11,7 +12,7 @@ class Facial_Landmarks_Detection:
     '''
     Class for the Facial Landmarks Detection Model.
     '''
-    def __init__(self, model_name, device='CPU', extensions=None):
+    def __init__(self, model_name, device='CPU', extensions=None, perf_counts="False"):
         self.model_weights = model_name + '.bin'
         self.model_structure = model_name + '.xml'
         self.device = device
@@ -25,6 +26,9 @@ class Facial_Landmarks_Detection:
         self.output_name = next(iter(self.model.outputs))
         self.output_shape = self.model.outputs[self.output_name].shape
         self.net = None
+        self.pp = None
+        if perf_counts == "True":
+            self.pp = pprint.PrettyPrinter(indent=4)
 
     def load_model(self):
         '''
@@ -41,17 +45,9 @@ class Facial_Landmarks_Detection:
         '''
         preprocessed_image = self.preprocess_input(image)
         output = self.net.infer({self.input_name: preprocessed_image})
-        # Here we return a row-vector of 10 floating point values for five landmarks coordinates in the form (x0, y0, x1, y1, ..., x5, y5).
-        # All the coordinates are normalized to be in range [0,1].
-        landmarks = next(iter(output.values()))[0]
-        width = int(image.shape[1])
-        height = int(image.shape[0])
-        eye_square_size = int(width * EYE_FACE_COEF)
-        left_eye = cv2.getRectSubPix(image, (eye_square_size, eye_square_size), (landmarks[0] * width + eye_square_size / 2, landmarks[1] * height + eye_square_size / 2))
-        right_eye = cv2.getRectSubPix(image, (eye_square_size, eye_square_size), (landmarks[2] * width + eye_square_size / 2, landmarks[3] * height + eye_square_size / 2))
-        # cv2.circle(image, (landmarks[0] * width, landmarks[1] * height), 5, (0, 0, 255), 1)
-        # cv2.circle(image, (landmarks[2] * width, landmarks[3] * height), 5, (0, 0, 255), 1)
-        return left_eye, right_eye
+        if self.pp is not None:
+            self.pp.pprint(self.net.requests[0].get_perf_counts())
+        return self.preprocess_output(next(iter(output.values()))[0], image)
 
     def check_model(self):
         raise NotImplementedError
@@ -68,9 +64,16 @@ class Facial_Landmarks_Detection:
         image = image.reshape(1, *image.shape)
         return image
 
-    def preprocess_output(self, outputs):
+    def preprocess_output(self, outputs, image):
         '''
-        Before feeding the output of this model to the next model,
-        you might have to preprocess the output. This function is where you can do that.
+        Here outputs is a row-vector of 10 floating point values for five landmarks coordinates in the form (x0, y0, x1, y1, ..., x5, y5).
+        All the coordinates are normalized to be in range [0,1].
+
+        This function returns cropped images of left and right eyes (the 2 first landmarks in the provided vector)
         '''
-        raise NotImplementedError
+        width = int(image.shape[1])
+        height = int(image.shape[0])
+        eye_square_size = int(width * EYE_FACE_COEF)
+        left_eye = cv2.getRectSubPix(image, (eye_square_size, eye_square_size), (outputs[0] * width + eye_square_size / 2, outputs[1] * height + eye_square_size / 2))
+        right_eye = cv2.getRectSubPix(image, (eye_square_size, eye_square_size), (outputs[2] * width + eye_square_size / 2, outputs[3] * height + eye_square_size / 2))
+        return left_eye, right_eye

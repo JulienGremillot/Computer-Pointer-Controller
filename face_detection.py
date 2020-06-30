@@ -3,6 +3,7 @@ This is the class for the Face Detection Model.
 '''
 import cv2
 from openvino.inference_engine.ie_api import IECore, IENetwork
+import pprint
 
 # default threshold
 THRESHOLD = 0.5
@@ -11,7 +12,7 @@ class Face_Detection:
     '''
     Class for the Face Detection Model.
     '''
-    def __init__(self, model_name, device='CPU', extensions=None):
+    def __init__(self, model_name, device='CPU', extensions=None, perf_counts="False"):
         self.model_weights = model_name + '.bin'
         self.model_structure = model_name + '.xml'
         self.device = device
@@ -25,6 +26,9 @@ class Face_Detection:
         self.output_name = next(iter(self.model.outputs))
         self.output_shape = self.model.outputs[self.output_name].shape
         self.net = None
+        self.pp = None
+        if perf_counts == "True":
+            self.pp = pprint.PrettyPrinter(indent=4)
 
     def load_model(self):
         '''
@@ -41,6 +45,8 @@ class Face_Detection:
         '''
         preprocessed_image = self.preprocess_input(image)
         output = self.net.infer({self.input_name: preprocessed_image})
+        if self.pp is not None:
+            self.pp.pprint(self.net.requests[0].get_perf_counts())
         coords = self.preprocess_output(output[self.output_name])
         if not coords:
             return None

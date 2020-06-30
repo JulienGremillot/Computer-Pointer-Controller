@@ -3,13 +3,14 @@ This is the class for the Gaze Estimation Model.
 '''
 import cv2
 from openvino.inference_engine.ie_api import IENetwork, IECore
+import pprint
 
 
 class Gaze_Estimation:
     '''
     Class for the Gaze Estimation Model.
     '''
-    def __init__(self, model_name, device='CPU', extensions=None):
+    def __init__(self, model_name, device='CPU', extensions=None, perf_counts="False"):
         self.model_weights = model_name + '.bin'
         self.model_structure = model_name + '.xml'
         self.device = device
@@ -22,6 +23,9 @@ class Gaze_Estimation:
         self.output_name = next(iter(self.model.outputs))
         self.output_shape = self.model.outputs[self.output_name].shape
         self.net = None
+        self.pp = None
+        if perf_counts == "True":
+            self.pp = pprint.PrettyPrinter(indent=4)
 
     def load_model(self):
         '''
@@ -45,6 +49,8 @@ class Gaze_Estimation:
                         'right_eye_image': self.preprocess_input(right_eye_image),
                         'head_pose_angles': head_pose_angles
                       })
+        if self.pp is not None:
+            self.pp.pprint(self.net.requests[0].get_perf_counts())
         return output['gaze_vector'][0]
 
     def check_model(self):
