@@ -49,6 +49,7 @@ A basic usage should be as simple as this command :
 Without any parameters, the script will run in webcam mode and will try to use models in the expected directories.
 
 Here is an example of the script in action with a webcam (default) :
+![](resources/example.gif?raw=true)
 [resources/example.mp4](resources/example.mp4)
 
 See below to specify other parameters.
