@@ -40,10 +40,35 @@ python "C:\Program Files (x86)\IntelSWTools\openvino\deployment_tools\tools\mode
 
 The total files size is about 41MB.
 
-## Usage
+## Demo
+
+A basic usage should be as simple as this command :
+```python main.py```
+
+Without any parameters, the script will run in webcam mode and will try to use models in the expected directories.
 
 Here is an example of the script in action with a webcam (default) :
 [resources/example.mp4](resources/example.mp4)
+
+See below to specify other parameters.
+
+## Documentation
+
+With command line arguments, you can specify other models or precisions (FP32 is used by default).
+
+There is 4 parameters corresponding to the 4 models used :
+- ```--face_detection_model```
+- ```--gaze_estimation_model```
+- ```--head_pose_estimation_model```
+- ```--facial_landmarks_detection_model```
+
+You have to give the model's name, without the .bin or .xml extensions.
+
+Another important argument is the ```--input_type``` argument. It can takes 3 values : ```cam``` (default), ```video``` or ```image```.
+With the 2 last values, you'll have to specify another argument ```--input_file``` that points to the appropriate file.
+
+The script also provides a ```--device``` argument (default='CPU') that allows the script to use different hardware to execute the inference ("GPU", "MYRIAD", ...), as provided by the OpenVino framework.
+The ```--extensions``` argument allows the script to make use of OpenVino extension.
 
 ## Licence
 
